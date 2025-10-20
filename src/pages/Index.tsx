@@ -13,11 +13,14 @@ interface GameObject {
 export default function Index() {
   const [gameState, setGameState] = useState<GameState>('story');
   const [playerX, setPlayerX] = useState(50);
+  const [playerY, setPlayerY] = useState(85);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  const [inventory, setInventory] = useState(0);
   const [notes, setNotes] = useState<GameObject[]>([]);
   const [enemies, setEnemies] = useState<GameObject[]>([]);
   const gameLoopRef = useRef<number>();
+  const affogatoY = 10;
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -41,8 +44,8 @@ export default function Index() {
         ...note,
         y: note.active ? note.y + 0.5 : note.y
       })).map(note => {
-        if (note.active && note.y > 80 && note.y < 90 && Math.abs(note.x - playerX) < 8) {
-          setScore(s => s + 1);
+        if (note.active && note.y > playerY - 5 && note.y < playerY + 5 && Math.abs(note.x - playerX) < 8) {
+          setInventory(inv => inv + 1);
           return { ...note, active: false, y: -Math.random() * 30 - 10, x: Math.random() * 80 + 10 };
         }
         if (note.y > 100) {
@@ -55,7 +58,7 @@ export default function Index() {
         ...enemy,
         y: enemy.active ? enemy.y + 0.7 : enemy.y
       })).map(enemy => {
-        if (enemy.active && enemy.y > 80 && enemy.y < 90 && Math.abs(enemy.x - playerX) < 8) {
+        if (enemy.active && enemy.y > playerY - 5 && enemy.y < playerY + 5 && Math.abs(enemy.x - playerX) < 8) {
           setLives(l => l - 1);
           return { ...enemy, active: false, y: -Math.random() * 30 - 10, x: Math.random() * 80 + 10 };
         }
@@ -65,6 +68,11 @@ export default function Index() {
         return enemy;
       }));
 
+      if (inventory > 0 && Math.abs(playerX - 50) < 10 && playerY < 15) {
+        setScore(s => s + inventory);
+        setInventory(0);
+      }
+
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -72,7 +80,7 @@ export default function Index() {
     return () => {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
     };
-  }, [gameState, playerX]);
+  }, [gameState, playerX, playerY, inventory]);
 
   useEffect(() => {
     if (lives <= 0) setGameState('lose');
@@ -95,7 +103,17 @@ export default function Index() {
     setGameState('playing');
     setScore(0);
     setLives(3);
+    setInventory(0);
     setPlayerX(50);
+    setPlayerY(85);
+  };
+
+  const handleUpButton = () => {
+    setPlayerY(prev => Math.max(10, prev - 40));
+  };
+
+  const handleDownButton = () => {
+    setPlayerY(prev => Math.min(85, prev + 40));
   };
 
   if (gameState === 'story') {
@@ -191,27 +209,36 @@ export default function Index() {
     <div className="min-h-screen bg-gray-900 flex flex-col">
       <div className="bg-purple-950 border-b-4 border-purple-700 p-4 flex justify-between items-center pixel-text">
         <div className="flex gap-6 text-purple-200 text-lg">
-          <span>💌 Записки: {score}/15</span>
+          <span>💌 Отдано: {score}/15</span>
+          <span>📦 В руках: {inventory}</span>
           <span>❤️ Жизни: {'❤️'.repeat(lives)}</span>
         </div>
       </div>
 
       <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-indigo-950 to-purple-950">
         <div className="absolute inset-0 castle-corridor">
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-center z-10">
-            <div className="relative inline-block">
-              <img 
-                src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg" 
-                alt="Affogato Cookie"
-                className="w-24 h-24 object-contain pixel-art border-4 border-purple-400 rounded-lg bg-purple-900/80 shadow-xl"
-              />
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-pink-500 rounded-full border-2 border-white flex items-center justify-center text-sm font-bold pixel-text shadow-lg">
-                {score}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-center z-10">
+            <div className="bg-gradient-to-b from-purple-800 to-purple-900 p-4 rounded-xl border-4 border-yellow-500 shadow-2xl">
+              <p className="text-yellow-400 text-xs pixel-text mb-2">👑 ТРОННЫЙ ЗАЛ 👑</p>
+              <div className="relative inline-block">
+                <img 
+                  src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg" 
+                  alt="Affogato Cookie"
+                  className="w-32 h-32 object-contain pixel-art border-4 border-pink-400 rounded-lg bg-purple-950/80 shadow-xl"
+                />
+                <div className="absolute -top-2 -right-2 w-10 h-10 bg-pink-500 rounded-full border-2 border-white flex items-center justify-center text-lg font-bold pixel-text shadow-lg">
+                  {score}
+                </div>
               </div>
+              <p className="text-pink-300 text-sm pixel-text mt-2">
+                Affogato Cookie
+              </p>
+              {inventory > 0 && Math.abs(playerX - 50) < 10 && playerY < 15 && (
+                <p className="text-green-400 text-xs pixel-text mt-1 animate-pulse">
+                  ✨ Отдаю записки! ✨
+                </p>
+              )}
             </div>
-            <p className="text-purple-200 text-xs pixel-text mt-2 bg-purple-900/80 px-3 py-1 rounded-full border-2 border-purple-400">
-              Affogato Cookie
-            </p>
           </div>
 
           {notes.map((note, i) => note.active && (
@@ -235,32 +262,50 @@ export default function Index() {
           ))}
 
           <div
-            className="absolute text-5xl transition-all duration-100 pixel-sprite"
-            style={{ left: `${playerX}%`, top: '85%', transform: 'translate(-50%, -50%)' }}
+            className="absolute text-5xl transition-all duration-300 pixel-sprite"
+            style={{ left: `${playerX}%`, top: `${playerY}%`, transform: 'translate(-50%, -50%)' }}
           >
             🏃
+            {inventory > 0 && (
+              <span className="absolute -top-3 -right-3 text-2xl">💌</span>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="bg-gray-800 border-t-4 border-purple-700 p-6">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-center text-purple-300 mb-3 pixel-text text-sm">
-            🕹️ Двигай пальцем по колёсику
+      <div className="bg-gray-800 border-t-4 border-purple-700 p-4">
+        <div className="max-w-4xl mx-auto space-y-3">
+          <div className="flex gap-3 justify-center">
+            <Button 
+              onClick={handleUpButton}
+              className="pixel-text bg-indigo-600 hover:bg-indigo-700 border-4 border-indigo-400 text-2xl px-8 py-6"
+            >
+              ⬆️ Вверх к трону
+            </Button>
+            <Button 
+              onClick={handleDownButton}
+              className="pixel-text bg-purple-600 hover:bg-purple-700 border-4 border-purple-400 text-2xl px-8 py-6"
+            >
+              ⬇️ Вниз за записками
+            </Button>
+          </div>
+          
+          <p className="text-center text-purple-300 mb-2 pixel-text text-xs">
+            🕹️ Влево-вправо: двигай пальцем по колёсику
           </p>
           <div
-            className="w-full h-24 bg-gradient-to-r from-purple-900 via-purple-700 to-purple-900 rounded-full border-4 border-purple-500 cursor-pointer relative shadow-lg pixel-border"
+            className="w-full h-20 bg-gradient-to-r from-purple-900 via-purple-700 to-purple-900 rounded-full border-4 border-purple-500 cursor-pointer relative shadow-lg pixel-border"
             onMouseMove={handleWheelMove}
             onTouchMove={handleTouchMove}
           >
             <div
-              className="absolute top-1/2 w-16 h-16 bg-orange-500 rounded-full border-4 border-orange-300 shadow-xl transition-all pixel-sprite"
+              className="absolute top-1/2 w-14 h-14 bg-orange-500 rounded-full border-4 border-orange-300 shadow-xl transition-all pixel-sprite"
               style={{ 
                 left: `${playerX}%`, 
                 transform: 'translate(-50%, -50%)',
               }}
             >
-              <div className="absolute inset-0 flex items-center justify-center text-2xl">
+              <div className="absolute inset-0 flex items-center justify-center text-xl">
                 🎯
               </div>
             </div>
