@@ -102,13 +102,24 @@ export default function Index() {
     setPlayerY(85);
   };
 
-  const handleUpButton = () => {
-    setPlayerY(prev => Math.max(10, prev - 40));
+  const handleMove = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (direction === 'up') setPlayerY(prev => Math.max(15, prev - 3));
+    if (direction === 'down') setPlayerY(prev => Math.min(85, prev + 3));
+    if (direction === 'left') setPlayerX(prev => Math.max(10, prev - 3));
+    if (direction === 'right') setPlayerX(prev => Math.max(10, Math.min(90, prev + 3)));
   };
 
-  const handleDownButton = () => {
-    setPlayerY(prev => Math.min(85, prev + 40));
-  };
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (gameState !== 'playing') return;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === 'ц' || e.key === 'Ц') handleMove('up');
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S' || e.key === 'ы' || e.key === 'Ы') handleMove('down');
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф') handleMove('left');
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === 'в' || e.key === 'В') handleMove('right');
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [gameState]);
 
   const goToThrone = () => {
     if (inventory > 0) {
@@ -279,8 +290,8 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-indigo-950 to-purple-950">
-        <div className="absolute inset-0 castle-corridor">
+      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-gray-800 to-gray-900">
+        <div className="absolute inset-0 castle-corridor-pixel">
           {notes.map((note, i) => note.active && (
             <div
               key={`note-${i}`}
@@ -326,53 +337,58 @@ export default function Index() {
       </div>
 
       <div className="bg-gray-800 border-t-4 border-purple-700 p-4">
-        <div className="max-w-4xl mx-auto space-y-3">
-          <div className="flex gap-3 justify-center flex-wrap">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-3 justify-center items-center flex-wrap mb-3">
             <Button 
               onClick={goToThrone}
               disabled={inventory === 0}
-              className={`pixel-text text-xl px-6 py-6 border-4 ${
+              className={`pixel-text text-lg px-8 py-4 border-4 ${
                 inventory > 0 
                   ? 'bg-yellow-600 hover:bg-yellow-700 border-yellow-400 animate-pulse' 
                   : 'bg-gray-600 border-gray-500 cursor-not-allowed opacity-50'
               }`}
             >
-              👑 Идти в тронный зал ({inventory} 💌)
-            </Button>
-            <Button 
-              onClick={handleUpButton}
-              className="pixel-text bg-indigo-600 hover:bg-indigo-700 border-4 border-indigo-400 text-xl px-6 py-6"
-            >
-              ⬆️ Вверх
-            </Button>
-            <Button 
-              onClick={handleDownButton}
-              className="pixel-text bg-purple-600 hover:bg-purple-700 border-4 border-purple-400 text-xl px-6 py-6"
-            >
-              ⬇️ Вниз
+              👑 В тронный зал ({inventory} 💌)
             </Button>
           </div>
           
-          <p className="text-center text-purple-300 mb-2 pixel-text text-xs">
-            🕹️ Влево-вправо: двигай пальцем по колёсику
-          </p>
-          <div
-            className="w-full h-20 bg-gradient-to-r from-purple-900 via-purple-700 to-purple-900 rounded-full border-4 border-purple-500 cursor-pointer relative shadow-lg pixel-border"
-            onMouseMove={handleWheelMove}
-            onTouchMove={handleTouchMove}
-          >
-            <div
-              className="absolute top-1/2 w-14 h-14 bg-orange-500 rounded-full border-4 border-orange-300 shadow-xl transition-all pixel-sprite"
-              style={{ 
-                left: `${playerX}%`, 
-                transform: 'translate(-50%, -50%)',
-              }}
+          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
+            <div></div>
+            <Button 
+              onMouseDown={() => handleMove('up')}
+              onTouchStart={() => handleMove('up')}
+              className="pixel-text bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 border-4 border-indigo-400 text-3xl h-16"
             >
-              <div className="absolute inset-0 flex items-center justify-center text-xl">
-                🎯
-              </div>
-            </div>
+              ⬆️
+            </Button>
+            <div></div>
+            
+            <Button 
+              onMouseDown={() => handleMove('left')}
+              onTouchStart={() => handleMove('left')}
+              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-3xl h-16"
+            >
+              ⬅️
+            </Button>
+            <Button 
+              onMouseDown={() => handleMove('down')}
+              onTouchStart={() => handleMove('down')}
+              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-3xl h-16"
+            >
+              ⬇️
+            </Button>
+            <Button 
+              onMouseDown={() => handleMove('right')}
+              onTouchStart={() => handleMove('right')}
+              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-3xl h-16"
+            >
+              ➡️
+            </Button>
           </div>
+          
+          <p className="text-center text-purple-300 mt-3 pixel-text text-xs">
+            🎮 Клавиатура: WASD / Стрелки
+          </p>
         </div>
       </div>
     </div>

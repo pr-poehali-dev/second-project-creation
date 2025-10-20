@@ -141,6 +141,53 @@
     );
 }
 
+.castle-corridor-pixel {
+  background-color: #2a1a4a;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 8px,
+      rgba(88, 28, 135, 0.4) 8px,
+      rgba(88, 28, 135, 0.4) 16px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 8px,
+      rgba(59, 7, 100, 0.3) 8px,
+      rgba(59, 7, 100, 0.3) 16px
+    ),
+    linear-gradient(90deg, #1a0a2e 0%, #2a1a4a 20%, #2a1a4a 80%, #1a0a2e 100%);
+  position: relative;
+}
+
+.castle-corridor-pixel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.2) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.castle-corridor-pixel::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(0deg, rgba(59, 7, 100, 0.3) 0%, transparent 100%);
+  pointer-events: none;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
