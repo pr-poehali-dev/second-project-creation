@@ -127,14 +127,27 @@ export default function Index() {
       <div className="min-h-screen bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-800 flex items-center justify-center p-4 pixel-art">
         <Card className="max-w-2xl p-8 bg-gray-900/90 border-4 border-purple-500 shadow-2xl">
           <div className="space-y-6 text-center">
-            <div className="text-6xl mb-4">🏰</div>
+            <div className="flex justify-center gap-4 mb-4">
+              <img 
+                src="https://cdn.poehali.dev/files/7bd725ee-a449-4fe6-95c1-698ddbcdc587.png"
+                alt="Banoffee Cookie"
+                className="w-24 h-24 object-contain pixel-art animate-fade-in"
+              />
+              <div className="text-6xl flex items-center">🏰</div>
+              <img 
+                src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg"
+                alt="Affogato Cookie"
+                className="w-24 h-24 object-contain pixel-art animate-fade-in"
+                style={{ animationDelay: '0.3s' }}
+              />
+            </div>
             <h1 className="text-4xl font-bold text-purple-300 pixel-text">
               Любовь в Королевстве
             </h1>
             
             <div className="space-y-4 text-lg text-purple-200 text-left pixel-text leading-relaxed">
               <p className="animate-fade-in">
-                🎮 Главный герой переехал в загадочное королевство в поисках новой жизни...
+                🎮 Banoffee Cookie переехал в загадочное королевство в поисках новой жизни...
               </p>
               <p className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
                 💜 Там он встретил свою любовь - прекрасного Affogato Cookie!
@@ -294,13 +307,20 @@ export default function Index() {
           ))}
 
           <div
-            className="absolute text-5xl transition-all duration-300 pixel-sprite"
+            className="absolute transition-all duration-300"
             style={{ left: `${playerX}%`, top: `${playerY}%`, transform: 'translate(-50%, -50%)' }}
           >
-            🏃
-            {inventory > 0 && (
-              <span className="absolute -top-3 -right-3 text-2xl">💌</span>
-            )}
+            <div className="relative">
+              <img 
+                src="https://cdn.poehali.dev/files/7bd725ee-a449-4fe6-95c1-698ddbcdc587.png"
+                alt="Banoffee Cookie"
+                className="w-20 h-20 object-contain pixel-art"
+                style={{ filter: 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.6))' }}
+              />
+              {inventory > 0 && (
+                <span className="absolute -top-2 -right-2 text-3xl animate-bounce">💌</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
