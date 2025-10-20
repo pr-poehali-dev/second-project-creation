@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-type GameState = 'story' | 'playing' | 'win' | 'lose';
+type GameState = 'story' | 'playing' | 'throne' | 'win' | 'lose';
 
 interface GameObject {
   x: number;
@@ -20,7 +20,6 @@ export default function Index() {
   const [notes, setNotes] = useState<GameObject[]>([]);
   const [enemies, setEnemies] = useState<GameObject[]>([]);
   const gameLoopRef = useRef<number>();
-  const affogatoY = 10;
 
   useEffect(() => {
     if (gameState === 'playing') {
@@ -68,11 +67,6 @@ export default function Index() {
         return enemy;
       }));
 
-      if (inventory > 0 && Math.abs(playerX - 50) < 10 && playerY < 15) {
-        setScore(s => s + inventory);
-        setInventory(0);
-      }
-
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -114,6 +108,18 @@ export default function Index() {
 
   const handleDownButton = () => {
     setPlayerY(prev => Math.min(85, prev + 40));
+  };
+
+  const goToThrone = () => {
+    if (inventory > 0) {
+      setGameState('throne');
+    }
+  };
+
+  const deliverNotes = () => {
+    setScore(s => s + inventory);
+    setInventory(0);
+    setGameState('playing');
   };
 
   if (gameState === 'story') {
@@ -188,6 +194,51 @@ export default function Index() {
     );
   }
 
+  if (gameState === 'throne') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
+        <Card className="max-w-2xl p-8 bg-gradient-to-b from-purple-950 to-indigo-950 border-4 border-yellow-400 shadow-2xl">
+          <div className="space-y-6 text-center">
+            <p className="text-yellow-400 text-2xl pixel-text mb-4">👑 ТРОННЫЙ ЗАЛ 👑</p>
+            
+            <div className="relative inline-block animate-scale-in">
+              <img 
+                src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg" 
+                alt="Affogato Cookie"
+                className="w-64 h-64 object-contain pixel-art border-4 border-pink-400 rounded-xl bg-purple-900/80 shadow-2xl mx-auto"
+              />
+              <div className="absolute -top-3 -right-3 w-16 h-16 bg-pink-500 rounded-full border-4 border-white flex items-center justify-center text-2xl font-bold pixel-text shadow-xl">
+                {score}
+              </div>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-pink-300 pixel-text">Affogato Cookie</h2>
+            
+            <p className="text-xl text-purple-200 pixel-text">
+              У тебя {inventory} {inventory === 1 ? 'записка' : 'записок'} 💌
+            </p>
+            
+            <div className="space-y-3">
+              <Button 
+                onClick={deliverNotes}
+                className="w-full text-xl py-6 pixel-text bg-pink-600 hover:bg-pink-700 border-4 border-pink-400 hover:scale-105 transition-transform"
+              >
+                💝 Отдать записки Affogato Cookie
+              </Button>
+              
+              <Button 
+                onClick={() => setGameState('playing')}
+                className="w-full pixel-text bg-purple-600 hover:bg-purple-700 border-4 border-purple-400"
+              >
+                ← Вернуться в коридор
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   if (gameState === 'lose') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-800 via-gray-900 to-black flex items-center justify-center p-4">
@@ -217,30 +268,6 @@ export default function Index() {
 
       <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-indigo-950 to-purple-950">
         <div className="absolute inset-0 castle-corridor">
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-center z-10">
-            <div className="bg-gradient-to-b from-purple-800 to-purple-900 p-4 rounded-xl border-4 border-yellow-500 shadow-2xl">
-              <p className="text-yellow-400 text-xs pixel-text mb-2">👑 ТРОННЫЙ ЗАЛ 👑</p>
-              <div className="relative inline-block">
-                <img 
-                  src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg" 
-                  alt="Affogato Cookie"
-                  className="w-32 h-32 object-contain pixel-art border-4 border-pink-400 rounded-lg bg-purple-950/80 shadow-xl"
-                />
-                <div className="absolute -top-2 -right-2 w-10 h-10 bg-pink-500 rounded-full border-2 border-white flex items-center justify-center text-lg font-bold pixel-text shadow-lg">
-                  {score}
-                </div>
-              </div>
-              <p className="text-pink-300 text-sm pixel-text mt-2">
-                Affogato Cookie
-              </p>
-              {inventory > 0 && Math.abs(playerX - 50) < 10 && playerY < 15 && (
-                <p className="text-green-400 text-xs pixel-text mt-1 animate-pulse">
-                  ✨ Отдаю записки! ✨
-                </p>
-              )}
-            </div>
-          </div>
-
           {notes.map((note, i) => note.active && (
             <div
               key={`note-${i}`}
@@ -275,18 +302,29 @@ export default function Index() {
 
       <div className="bg-gray-800 border-t-4 border-purple-700 p-4">
         <div className="max-w-4xl mx-auto space-y-3">
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Button 
+              onClick={goToThrone}
+              disabled={inventory === 0}
+              className={`pixel-text text-xl px-6 py-6 border-4 ${
+                inventory > 0 
+                  ? 'bg-yellow-600 hover:bg-yellow-700 border-yellow-400 animate-pulse' 
+                  : 'bg-gray-600 border-gray-500 cursor-not-allowed opacity-50'
+              }`}
+            >
+              👑 Идти в тронный зал ({inventory} 💌)
+            </Button>
             <Button 
               onClick={handleUpButton}
-              className="pixel-text bg-indigo-600 hover:bg-indigo-700 border-4 border-indigo-400 text-2xl px-8 py-6"
+              className="pixel-text bg-indigo-600 hover:bg-indigo-700 border-4 border-indigo-400 text-xl px-6 py-6"
             >
-              ⬆️ Вверх к трону
+              ⬆️ Вверх
             </Button>
             <Button 
               onClick={handleDownButton}
-              className="pixel-text bg-purple-600 hover:bg-purple-700 border-4 border-purple-400 text-2xl px-8 py-6"
+              className="pixel-text bg-purple-600 hover:bg-purple-700 border-4 border-purple-400 text-xl px-6 py-6"
             >
-              ⬇️ Вниз за записками
+              ⬇️ Вниз
             </Button>
           </div>
           
