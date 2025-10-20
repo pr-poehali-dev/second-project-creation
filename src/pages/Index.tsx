@@ -147,12 +147,22 @@ export default function Index() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-pink-600 via-purple-600 to-pink-700 flex items-center justify-center p-4">
         <Card className="max-w-xl p-8 bg-gray-900/90 border-4 border-pink-400 text-center">
-          <div className="text-7xl mb-4">💝</div>
-          <h2 className="text-4xl font-bold text-pink-300 mb-4 pixel-text">Победа!</h2>
-          <p className="text-xl text-pink-200 mb-6 pixel-text">
-            Ты собрал все записки! Affogato Cookie принял твои чувства! 💕
+          <div className="mb-6">
+            <img 
+              src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg" 
+              alt="Affogato Cookie"
+              className="w-48 h-48 mx-auto object-contain pixel-art animate-scale-in"
+            />
+          </div>
+          <div className="text-7xl mb-4 animate-fade-in">💝</div>
+          <h2 className="text-4xl font-bold text-pink-300 mb-4 pixel-text animate-fade-in">Победа!</h2>
+          <p className="text-xl text-pink-200 mb-2 pixel-text animate-fade-in">
+            Ты собрал все записки!
           </p>
-          <Button onClick={startGame} className="pixel-text bg-pink-600 hover:bg-pink-700 border-4 border-pink-400">
+          <p className="text-lg text-pink-300 mb-6 pixel-text animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            Affogato Cookie принял твои чувства! 💕
+          </p>
+          <Button onClick={startGame} className="pixel-text bg-pink-600 hover:bg-pink-700 border-4 border-pink-400 hover:scale-105 transition-transform">
             Играть снова
           </Button>
         </Card>
