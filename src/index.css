@@ -142,50 +142,100 @@
 }
 
 .castle-corridor-pixel {
-  background-color: #2a1a4a;
-  background-image:
-    repeating-linear-gradient(
+  background:
+    linear-gradient(
       90deg,
-      transparent,
-      transparent 8px,
-      rgba(88, 28, 135, 0.4) 8px,
-      rgba(88, 28, 135, 0.4) 16px
+      #1a0a2e 0%,
+      transparent 10%,
+      transparent 90%,
+      #1a0a2e 100%
     ),
     repeating-linear-gradient(
       0deg,
-      transparent,
-      transparent 8px,
-      rgba(59, 7, 100, 0.3) 8px,
-      rgba(59, 7, 100, 0.3) 16px
-    ),
-    linear-gradient(90deg, #1a0a2e 0%, #2a1a4a 20%, #2a1a4a 80%, #1a0a2e 100%);
+      #2a1550 0px,
+      #2a1550 40px,
+      #1f0f3d 40px,
+      #1f0f3d 80px
+    );
   position: relative;
 }
 
 .castle-corridor-pixel::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 30%;
-  background: linear-gradient(
-    180deg,
-    rgba(139, 92, 246, 0.2) 0%,
-    transparent 100%
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 48%,
+    rgba(139, 92, 246, 0.1) 48%,
+    rgba(139, 92, 246, 0.1) 52%,
+    transparent 52%
   );
   pointer-events: none;
 }
 
-.castle-corridor-pixel::after {
+.corridor-windows {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(
+      ellipse 60px 80px at 15% 20%,
+      rgba(139, 92, 246, 0.3),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60px 80px at 85% 20%,
+      rgba(139, 92, 246, 0.3),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60px 80px at 15% 50%,
+      rgba(88, 28, 135, 0.3),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60px 80px at 85% 50%,
+      rgba(88, 28, 135, 0.3),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60px 80px at 15% 80%,
+      rgba(139, 92, 246, 0.3),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60px 80px at 85% 80%,
+      rgba(139, 92, 246, 0.3),
+      transparent
+    );
+  pointer-events: none;
+}
+
+.table-pixel {
+  width: 48px;
+  height: 40px;
+  background: linear-gradient(180deg, #4a2c2c 0%, #3a1c1c 100%);
+  border: 3px solid #2a1212;
+  border-radius: 4px;
+  box-shadow:
+    0 4px 0 #1a0a0a,
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  image-rendering: pixelated;
+}
+
+.table-pixel::after {
   content: "";
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 30%;
-  background: linear-gradient(0deg, rgba(59, 7, 100, 0.3) 0%, transparent 100%);
-  pointer-events: none;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 8px;
+  background: #2a1212;
+  border-radius: 50%;
+  opacity: 0.5;
 }
 
 @keyframes fade-in {

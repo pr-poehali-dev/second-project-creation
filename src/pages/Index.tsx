@@ -13,24 +13,29 @@ interface GameObject {
 export default function Index() {
   const [gameState, setGameState] = useState<GameState>('story');
   const [playerX, setPlayerX] = useState(50);
-  const [playerY, setPlayerY] = useState(85);
+  const [scrollY, setScrollY] = useState(0);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [inventory, setInventory] = useState(0);
   const [notes, setNotes] = useState<GameObject[]>([]);
   const [enemies, setEnemies] = useState<GameObject[]>([]);
   const gameLoopRef = useRef<number>();
+  const playerY = 70;
 
   useEffect(() => {
     if (gameState === 'playing') {
-      setNotes([
-        { x: Math.random() * 80 + 10, y: 0, active: true },
-        { x: Math.random() * 80 + 10, y: -30, active: true },
-        { x: Math.random() * 80 + 10, y: -60, active: true },
-      ]);
+      const tablePositions = [20, 35, 50, 65, 80];
+      setNotes(
+        tablePositions.map((y, i) => ({
+          x: i % 2 === 0 ? 25 : 75,
+          y: y,
+          active: true
+        }))
+      );
       setEnemies([
-        { x: Math.random() * 80 + 10, y: -20, active: true },
-        { x: Math.random() * 80 + 10, y: -50, active: true },
+        { x: 50, y: 10, active: true },
+        { x: 30, y: 40, active: true },
+        { x: 70, y: 60, active: true },
       ]);
     }
   }, [gameState]);
@@ -39,30 +44,20 @@ export default function Index() {
     if (gameState !== 'playing') return;
 
     const gameLoop = () => {
-      setNotes(prev => prev.map(note => ({
-        ...note,
-        y: note.active ? note.y + 0.5 : note.y
-      })).map(note => {
-        if (note.active && note.y > playerY - 5 && note.y < playerY + 5 && Math.abs(note.x - playerX) < 8) {
+      setNotes(prev => prev.map(note => {
+        const adjustedY = note.y - scrollY;
+        if (note.active && adjustedY > 65 && adjustedY < 75 && Math.abs(note.x - playerX) < 12) {
           setInventory(inv => inv + 1);
-          return { ...note, active: false, y: -Math.random() * 30 - 10, x: Math.random() * 80 + 10 };
-        }
-        if (note.y > 100) {
-          return { ...note, y: -Math.random() * 20, x: Math.random() * 80 + 10, active: true };
+          return { ...note, active: false };
         }
         return note;
       }));
 
-      setEnemies(prev => prev.map(enemy => ({
-        ...enemy,
-        y: enemy.active ? enemy.y + 0.7 : enemy.y
-      })).map(enemy => {
-        if (enemy.active && enemy.y > playerY - 5 && enemy.y < playerY + 5 && Math.abs(enemy.x - playerX) < 8) {
+      setEnemies(prev => prev.map(enemy => {
+        const adjustedY = enemy.y - scrollY;
+        if (enemy.active && adjustedY > 65 && adjustedY < 75 && Math.abs(enemy.x - playerX) < 12) {
           setLives(l => l - 1);
-          return { ...enemy, active: false, y: -Math.random() * 30 - 10, x: Math.random() * 80 + 10 };
-        }
-        if (enemy.y > 100) {
-          return { ...enemy, y: -Math.random() * 20, x: Math.random() * 80 + 10, active: true };
+          return { ...enemy, active: false };
         }
         return enemy;
       }));
@@ -74,7 +69,7 @@ export default function Index() {
     return () => {
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
     };
-  }, [gameState, playerX, playerY, inventory]);
+  }, [gameState, playerX, scrollY]);
 
   useEffect(() => {
     if (lives <= 0) setGameState('lose');
@@ -99,27 +94,16 @@ export default function Index() {
     setLives(3);
     setInventory(0);
     setPlayerX(50);
-    setPlayerY(85);
+    setScrollY(0);
   };
 
-  const handleMove = (direction: 'up' | 'down' | 'left' | 'right') => {
-    if (direction === 'up') setPlayerY(prev => Math.max(15, prev - 3));
-    if (direction === 'down') setPlayerY(prev => Math.min(85, prev + 3));
-    if (direction === 'left') setPlayerX(prev => Math.max(10, prev - 3));
-    if (direction === 'right') setPlayerX(prev => Math.max(10, Math.min(90, prev + 3)));
+  const handleScrollUp = () => {
+    setScrollY(prev => Math.min(prev + 2, 100));
   };
 
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (gameState !== 'playing') return;
-      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === 'ц' || e.key === 'Ц') handleMove('up');
-      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S' || e.key === 'ы' || e.key === 'Ы') handleMove('down');
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф') handleMove('left');
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D' || e.key === 'в' || e.key === 'В') handleMove('right');
-    };
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [gameState]);
+  const handleScrollDown = () => {
+    setScrollY(prev => Math.max(prev - 2, 0));
+  };
 
   const goToThrone = () => {
     if (inventory > 0) {
@@ -290,35 +274,45 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-gray-800 to-gray-900">
+      <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-purple-950 to-black">
         <div className="absolute inset-0 castle-corridor-pixel">
-          {notes.map((note, i) => note.active && (
-            <div
-              key={`note-${i}`}
-              className="absolute text-4xl transition-all duration-100 pixel-sprite"
-              style={{ left: `${note.x}%`, top: `${note.y}%`, transform: 'translate(-50%, -50%)' }}
-            >
-              💌
-            </div>
-          ))}
+          <div className="corridor-windows"></div>
           
-          {enemies.map((enemy, i) => enemy.active && (
-            <div
-              key={`enemy-${i}`}
-              className="absolute transition-all duration-100"
-              style={{ left: `${enemy.x}%`, top: `${enemy.y}%`, transform: 'translate(-50%, -50%)' }}
-            >
-              <img 
-                src="https://cdn.poehali.dev/files/5544d635-bbb8-4951-a899-90827bda4656.jpg"
-                alt="Dark Cocoa Cookie"
-                className="w-16 h-16 object-contain pixel-art animate-pulse"
-                style={{ filter: 'drop-shadow(0 0 10px rgba(139, 0, 0, 0.8))' }}
-              />
-            </div>
-          ))}
+          {notes.map((note, i) => {
+            const adjustedY = note.y - scrollY;
+            return note.active && adjustedY > -10 && adjustedY < 110 && (
+              <div
+                key={`note-${i}`}
+                className="absolute"
+                style={{ left: `${note.x}%`, top: `${adjustedY}%`, transform: 'translate(-50%, -50%)' }}
+              >
+                <div className="table-pixel">
+                  <div className="text-3xl pixel-sprite animate-pulse" style={{ marginTop: '-20px' }}>💌</div>
+                </div>
+              </div>
+            );
+          })}
+          
+          {enemies.map((enemy, i) => {
+            const adjustedY = enemy.y - scrollY;
+            return enemy.active && adjustedY > -10 && adjustedY < 110 && (
+              <div
+                key={`enemy-${i}`}
+                className="absolute transition-all duration-300"
+                style={{ left: `${enemy.x}%`, top: `${adjustedY}%`, transform: 'translate(-50%, -50%)' }}
+              >
+                <img 
+                  src="https://cdn.poehali.dev/files/5544d635-bbb8-4951-a899-90827bda4656.jpg"
+                  alt="Dark Cocoa Cookie"
+                  className="w-16 h-16 object-contain pixel-art animate-pulse"
+                  style={{ filter: 'drop-shadow(0 0 10px rgba(139, 0, 0, 0.8))' }}
+                />
+              </div>
+            );
+          })}
 
           <div
-            className="absolute transition-all duration-300"
+            className="absolute transition-all duration-200"
             style={{ left: `${playerX}%`, top: `${playerY}%`, transform: 'translate(-50%, -50%)' }}
           >
             <div className="relative">
@@ -336,9 +330,9 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="bg-gray-800 border-t-4 border-purple-700 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-3 justify-center items-center flex-wrap mb-3">
+      <div className="bg-gray-900 border-t-4 border-purple-700 p-4">
+        <div className="max-w-4xl mx-auto space-y-4">
+          <div className="flex gap-3 justify-center items-center">
             <Button 
               onClick={goToThrone}
               disabled={inventory === 0}
@@ -352,43 +346,43 @@ export default function Index() {
             </Button>
           </div>
           
-          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
-            <div></div>
+          <div className="flex gap-3 justify-center items-center">
             <Button 
-              onMouseDown={() => handleMove('up')}
-              onTouchStart={() => handleMove('up')}
-              className="pixel-text bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 border-4 border-indigo-400 text-3xl h-16"
+              onMouseDown={handleScrollUp}
+              onTouchStart={handleScrollUp}
+              className="pixel-text bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 border-4 border-indigo-400 text-2xl px-8 py-4"
             >
-              ⬆️
-            </Button>
-            <div></div>
-            
-            <Button 
-              onMouseDown={() => handleMove('left')}
-              onTouchStart={() => handleMove('left')}
-              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-3xl h-16"
-            >
-              ⬅️
+              ⬆️ Вперёд
             </Button>
             <Button 
-              onMouseDown={() => handleMove('down')}
-              onTouchStart={() => handleMove('down')}
-              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-3xl h-16"
+              onMouseDown={handleScrollDown}
+              onTouchStart={handleScrollDown}
+              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-2xl px-8 py-4"
             >
-              ⬇️
-            </Button>
-            <Button 
-              onMouseDown={() => handleMove('right')}
-              onTouchStart={() => handleMove('right')}
-              className="pixel-text bg-purple-600 hover:bg-purple-700 active:bg-purple-800 border-4 border-purple-400 text-3xl h-16"
-            >
-              ➡️
+              ⬇️ Назад
             </Button>
           </div>
-          
-          <p className="text-center text-purple-300 mt-3 pixel-text text-xs">
-            🎮 Клавиатура: WASD / Стрелки
+
+          <p className="text-center text-purple-300 pixel-text text-sm mb-2">
+            🕹️ Управление колёсиком влево-вправо
           </p>
+          <div
+            className="w-full h-24 bg-gradient-to-r from-purple-900 via-purple-700 to-purple-900 rounded-full border-4 border-purple-500 cursor-pointer relative shadow-lg pixel-border"
+            onMouseMove={handleWheelMove}
+            onTouchMove={handleTouchMove}
+          >
+            <div
+              className="absolute top-1/2 w-16 h-16 bg-orange-500 rounded-full border-4 border-orange-300 shadow-xl transition-all pixel-sprite"
+              style={{ 
+                left: `${playerX}%`, 
+                transform: 'translate(-50%, -50%)',
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center text-2xl">
+                🎯
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
