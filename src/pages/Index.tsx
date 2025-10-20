@@ -281,10 +281,15 @@ export default function Index() {
           {enemies.map((enemy, i) => enemy.active && (
             <div
               key={`enemy-${i}`}
-              className="absolute text-4xl transition-all duration-100 pixel-sprite"
+              className="absolute transition-all duration-100"
               style={{ left: `${enemy.x}%`, top: `${enemy.y}%`, transform: 'translate(-50%, -50%)' }}
             >
-              🍫
+              <img 
+                src="https://cdn.poehali.dev/files/5544d635-bbb8-4951-a899-90827bda4656.jpg"
+                alt="Dark Cocoa Cookie"
+                className="w-16 h-16 object-contain pixel-art animate-pulse"
+                style={{ filter: 'drop-shadow(0 0 10px rgba(139, 0, 0, 0.8))' }}
+              />
             </div>
           ))}
 
