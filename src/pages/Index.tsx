@@ -198,6 +198,22 @@ export default function Index() {
 
       <div className="flex-1 relative overflow-hidden bg-gradient-to-b from-indigo-950 to-purple-950">
         <div className="absolute inset-0 castle-corridor">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-center z-10">
+            <div className="relative inline-block">
+              <img 
+                src="https://cdn.poehali.dev/files/a0940257-0d1c-4196-97eb-74b931582916.jpg" 
+                alt="Affogato Cookie"
+                className="w-24 h-24 object-contain pixel-art border-4 border-purple-400 rounded-lg bg-purple-900/80 shadow-xl"
+              />
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-pink-500 rounded-full border-2 border-white flex items-center justify-center text-sm font-bold pixel-text shadow-lg">
+                {score}
+              </div>
+            </div>
+            <p className="text-purple-200 text-xs pixel-text mt-2 bg-purple-900/80 px-3 py-1 rounded-full border-2 border-purple-400">
+              Affogato Cookie
+            </p>
+          </div>
+
           {notes.map((note, i) => note.active && (
             <div
               key={`note-${i}`}
